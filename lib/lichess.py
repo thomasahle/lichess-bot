@@ -396,10 +396,6 @@ class Lichess:
         try:
             self.api_post("chat", game_id, data=data)
         except (HTTPError, ReadTimeout, RemoteDisconnected, RequestsConnectionError) as e:
-            # Chat is cosmetic. A failed chat message must never propagate an
-            # exception into the game loop, where it would cancel the move the
-            # engine owes (the state that prompted the move has already been
-            # consumed from the game stream, so the move would never be made).
             logger.warning(f"Could not send chat message to the {room} room of game {game_id}: {e}")
 
     def abort(self, game_id: str) -> None:

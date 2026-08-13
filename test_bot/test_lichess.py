@@ -66,7 +66,7 @@ def test_over_long_chat_message_is_not_sent() -> None:
     def record_api_post(path: str, *_args: object, **_kwargs: object) -> None:
         posted.append(path)
 
-    li.api_post = record_api_post  # type: ignore[method-assign, assignment]
+    li.api_post = record_api_post  # type: ignore[assignment]
 
     li.chat("game_id", "player", "x" * (lichess.MAX_CHAT_MESSAGE_LEN + 1))
 
