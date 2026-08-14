@@ -1,6 +1,7 @@
 """An engine that predicts the opponent's moves badly and is slow to end its ponder searches."""
 
 import chess
+import sys
 import time
 import typing
 
@@ -9,12 +10,21 @@ if typing.TYPE_CHECKING:
 else:
     from test_games import scholars_mate
 
+# lichess-bot turns the engine_options config into "--name=value" arguments.
+command_log = sys.argv[1].removeprefix("--command-log=")
+
 assert input() == "uci"
 
 
 def send_command(command: str) -> None:
     """Send UCI commands to lichess-bot without output buffering."""
     print(command, flush=True)  # noqa: T201 (print() found)
+
+
+def record_command(command: str) -> None:
+    """Record a search command so that the test can see which branches of this engine ran."""
+    with open(command_log, "a") as log:
+        log.write(f"{command}\n")
 
 
 def bestmove_command(board: chess.Board) -> str:
@@ -51,10 +61,13 @@ while True:
     elif command == "go":
         if "ponder" in remaining:
             # Search quietly until "ponderhit" or "stop" arrives.
+            record_command("go ponder")
             pondering = True
         else:
+            record_command("go")
             send_command(bestmove_command(board))
     elif command in ("ponderhit", "stop") and pondering:
+        record_command(command)
         pondering = False
         if not delay_performed:
             send_command("info string delaying end of ponder search")
